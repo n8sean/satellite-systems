@@ -1,5 +1,16 @@
 #pragma once
 #include <string>
+#include <numbers>
+
+namespace satutil {
+    // Phyiscal constants
+    constexpr double MU_EARTH = 3.986004418e14;  // standard gravitational parameter; m³/s² for Earth
+    constexpr double MU_MARS = 4.2828e13;
+    constexpr double MU_MOON = 4.9048695e12;
+    constexpr double R_EARTH = 6378137.0;  // meters
+    constexpr double R_MARS = 3389500.0;  // meters
+    constexpr double R_MOON = 1737400;  // meters
+}
 
 struct orbitParams {
     std::string body = "Earth";

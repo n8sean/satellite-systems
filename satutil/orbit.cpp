@@ -1,48 +1,37 @@
 /*
 Focused on circular and elliptical orbits around a central body (primarily Earth by default)
 */
-#include "includes/utility.h"
+#include "includes/orbital_utility.h"
+#include <numbers>
 #include <cmath>
 #include <string>
 #include <iostream>
 #include <vector>
 #include <iomanip>
 
-constexpr double MU_EARTH = 3.986004418e14;  // standard gravitational parameter; m³/s² for Earth
-constexpr double MU_MARS = 4.2828e13;
-constexpr double MU_MOON = MU_EARTH * 0.166;
-constexpr double PI = 3.141592653589793;
-constexpr double R_EARTH = 6378137.0;  // meters
-constexpr double R_MARS = 3389500.0;  // meters
-constexpr double R_MOON = 1737400;  // meters
-
 // ============= PARSING =============
 orbitParams getOrbitalParams(int argc, char* argv[]) {
     orbitParams params;
     params.body = "earth";  // default value
-    params.mu = MU_EARTH;  // default value
-    params.radius = R_EARTH;  //default value
+    params.mu = satutil::MU_EARTH;  // default value
+    params.radius = satutil::R_EARTH;  //default value
     for (int i = 2; i < argc; ++i) {
         std::string arg = argv[i];
         if (arg == "--body" && i+1 < argc) {
             std::string body = argv[++i];
             params.body = body;
             if (body == "earth" || body == "Earth") {
-                params.mu = MU_EARTH;
-                params.radius = R_EARTH;
+                params.mu = satutil::MU_EARTH;
+                params.radius = satutil::R_EARTH;
             } else if (body == "mars" || body == "Mars") {
-                params.mu = MU_MARS;
-                params.radius = R_MARS;
+                params.mu = satutil::MU_MARS;
+                params.radius = satutil::R_MARS;
             } else if (body == "moon" || body == "Moon") {
-                params.mu = MU_MOON;
-                params.radius = R_MOON;
+                params.mu = satutil::MU_MOON;
+                params.radius = satutil::R_MOON;
             }
         } else if (arg == "--alt" && i+1 < argc) {
             params.alt = std::stod(argv[++i]);
-            // ensure the altitude calculation is greater then the <'earth'|'moon'|'mars'> body radius
-            if (params.alt < params.radius) {
-                params.alt = params.radius + params.alt;
-            }
         } else if (arg == "--hohmann") {
             params.use_hohmann = true;
             // expect --r1 and --r2 next or handle separately
@@ -72,14 +61,14 @@ orbitParams getOrbitalParams(int argc, char* argv[]) {
     return params;
 }
 
-// ============= MATH FUNCTIONS =============
+// ============= ORBITAL CALCULATIONS =============
 double OrbitalPeriod (double a, double mu) {
     /* 
         Calculate orbital period for a circular or elliptical orbit
         a = semi-major axis in meters
         Returns period in seconds
     */
-    return 2.0 * PI * std::sqrt((a * a * a) / mu);  // seconds
+    return 2.0 * std::numbers::pi * std::sqrt((a * a * a) / mu);  // seconds
 }
 
 double OrbitalVelocity(double r, double mu) {
@@ -102,7 +91,7 @@ double SpecificMechanicalEnergy(double a, double mu) {
 
 double MeanMotion(double a, double mu) {
     /* Calculate the mean motion */
-    return 2 * PI / OrbitalPeriod(a, mu);
+    return 2 * std::numbers::pi / OrbitalPeriod(a, mu);
 }
 
 double EscapeVelocity(double r, double mu) {
@@ -136,7 +125,7 @@ void HohmannTransfer(double r1, double r2, double mu) {
         // Second burn (at r2):
         double delta_v2 = std::sqrt(mu / r2) - std::sqrt(mu * ((2.0 / r2) - (1.0 / a_trans)));
         // Transfer time: half the period of the ellipse
-        double t_transfer = PI * std::sqrt(a_trans * a_trans * a_trans / mu);  // seconds
+        double t_transfer = std::numbers::pi * std::sqrt(a_trans * a_trans * a_trans / mu);  // seconds
         
         std::cout << "  Hohmann Transfer Params\t\t" << std::endl;
         std::cout << std::fixed << std::setprecision(2) << "    Transfer SMA\t\t" << a_trans * 10e-4 << " km" << std::endl;
