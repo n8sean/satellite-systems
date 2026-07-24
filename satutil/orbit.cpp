@@ -10,11 +10,11 @@ Focused on circular and elliptical orbits around a central body (primarily Earth
 #include <iomanip>
 
 // ============= PARSING =============
-orbitParams getOrbitalParams(int argc, char* argv[]) {
+orbitParams GetOrbitalParams(int argc, char* argv[]) {
     orbitParams params;
-    params.body = "earth";  // default value
-    params.mu = satutil::MU_EARTH;  // default value
-    params.radius = satutil::R_EARTH;  //default value
+    params.body = "earth";
+    params.mu = satutil::MU_EARTH;
+    params.radius = satutil::R_EARTH;
     for (int i = 2; i < argc; ++i) {
         std::string arg = argv[i];
         if (arg == "--body" && i+1 < argc) {
@@ -42,8 +42,7 @@ orbitParams getOrbitalParams(int argc, char* argv[]) {
         } else if (arg == "--json") {
             params.json_output = true;
         } else if (arg == "--help") {
-            // show_orbit_help();
-            params.str_help = "Usage: satutil orbit [--body <'earth'|'moon'|'mars'>] [--sma <meters>] [--alt <meters>] [--hohmann --r1 <meters> --r2 <meters>] [--json]";
+            params.str_help = GetOrbitHelp();
         } else {
             std::cout << "Unknown flag: " << arg << std::endl;
         }
@@ -57,7 +56,6 @@ orbitParams getOrbitalParams(int argc, char* argv[]) {
     else if (params.sma == 0.0) {
         params.sma = params.radius;
     }
-    
     return params;
 }
 
@@ -133,4 +131,35 @@ void HohmannTransfer(double r1, double r2, double mu) {
         std::cout << std::fixed << std::setprecision(2) << "    delta_v2 (at r2)\t\t" << delta_v2 << " m/s" << std::endl;  // meters per second
         std::cout << std::fixed << std::setprecision(2) << "    Transfer Time\t\t" << t_transfer / 3600.0 << " hr" << std::endl;
     }
+}
+
+// ============= UTILITY =============
+std::string GetOrbitHelp() {
+    return R"HELP(
+Usage: satutil orbit [options...]
+
+Orbital Mechanics Calculator for embedded satellite systems.
+
+OPTIONS:
+--body <earth|mars|moon>     Central body (default: earth)
+--alt <meters>               Altitude above surface (required for most calcs)
+--sma <meters>               Semi-major axis (alternative to --alt)
+--hohmann                    Enable Hohmann transfer calculation
+--r1 <meters>                Initial orbit radius for Hohmann
+--r2 <meters>                Target orbit radius for Hohmann (r2 > r1)
+--json                       Output results as JSON
+--help                       Show this help message
+
+EXAMPLES:
+satutil orbit --body earth --alt 550000
+satutil orbit --body mars --alt 400000 --json
+satutil orbit --hohmann --r1 6778000 --r2 13216400
+
+OUTPUT INCLUDES:
+- Body radius, satellite radius & SMA
+- Orbital period, velocity, specific energy
+- Mean motion, escape velocity
+- Hohmann transfer delta_V & time (when enabled)
+
+)HELP";
 }

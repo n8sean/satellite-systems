@@ -25,7 +25,7 @@ struct orbitParams {
     std::string str_help = "";
 };
 
-orbitParams getOrbitalParams(int argc, char* argv[]);
+orbitParams GetOrbitalParams(int argc, char* argv[]);
 
 double OrbitalPeriod (double a, double mu);
 
@@ -40,3 +40,5 @@ double EscapeVelocity(double r, double mu);
 double altitudetoRadius(double r, double alt);
 
 void HohmannTransfer(double r1, double r2, double mu);
+
+std::string GetOrbitHelp();
